@@ -1,7 +1,7 @@
 ----------------------------------------------------------------
-Wed Apr 18 13:35:00 CDT 2018:
-Booting Derby version The Apache Software Foundation - Apache Derby - 10.12.1.1 - (1704137): instance a816c00e-0162-da09-c92e-0000974e2b10 
-on database directory /work/03076/rhuang/wrangler/zeppelin_cluster/zeppelin_standalone_mode/metastore_db with class loader org.apache.spark.sql.hive.client.IsolatedClientLoader$$anon$1@3aa9f72e 
+Wed Apr 18 13:58:14 CDT 2018:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.12.1.1 - (1704137): instance a816c00e-0162-da1f-19c9-000095fe29e8 
+on database directory /work/03076/rhuang/wrangler/zeppelin_cluster/zeppelin_standalone_mode/metastore_db with class loader org.apache.spark.sql.hive.client.IsolatedClientLoader$$anon$1@4a370e88 
 Loaded from file:/work/00791/xwj/maverick/run_spark/spark-2.1.1-bin-hadoop2.7/jars/derby-10.12.1.1.jar
 java.vendor=Oracle Corporation
 java.runtime.version=1.8.0_161-b14

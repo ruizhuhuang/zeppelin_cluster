@@ -1,16 +1,16 @@
-TACC: NODE_LIST: c476-002
-c476-074
-c476-092
-TACC: NODE_HOSTNAME: c476-002.stampede2.tacc.utexas.edu
-adding c476-074
-adding c476-092
-ssh c476-002 mkdir -p /tmp/spark/{run,log}; chmod -R 777 /tmp/spark
-ssh c476-074 mkdir -p /tmp/spark/{run,log}; chmod -R 777 /tmp/spark
-Warning: Permanently added 'c476-074' (ECDSA) to the list of known hosts.
+TACC: NODE_LIST: c476-092
+c477-093
+c477-094
+TACC: NODE_HOSTNAME: c476-092.stampede2.tacc.utexas.edu
+adding c477-093
+adding c477-094
 ssh c476-092 mkdir -p /tmp/spark/{run,log}; chmod -R 777 /tmp/spark
-starting org.apache.spark.deploy.master.Master, logging to /tmp/spark/log/spark/spark-rhuang-org.apache.spark.deploy.master.Master-1-c476-002.out
-c476-092: starting org.apache.spark.deploy.worker.Worker, logging to /tmp/spark/log/spark/spark-rhuang-org.apache.spark.deploy.worker.Worker-1-c476-092.stampede2.tacc.utexas.edu.out
-c476-074: starting org.apache.spark.deploy.worker.Worker, logging to /tmp/spark/log/spark/spark-rhuang-org.apache.spark.deploy.worker.Worker-1-c476-074.stampede2.tacc.utexas.edu.out
+ssh c477-093 mkdir -p /tmp/spark/{run,log}; chmod -R 777 /tmp/spark
+ssh c477-094 mkdir -p /tmp/spark/{run,log}; chmod -R 777 /tmp/spark
+Warning: Permanently added 'c477-094' (ECDSA) to the list of known hosts.
+starting org.apache.spark.deploy.master.Master, logging to /tmp/spark/log/spark/spark-rhuang-org.apache.spark.deploy.master.Master-1-c476-092.out
+c477-093: starting org.apache.spark.deploy.worker.Worker, logging to /tmp/spark/log/spark/spark-rhuang-org.apache.spark.deploy.worker.Worker-1-c477-093.stampede2.tacc.utexas.edu.out
+c477-094: starting org.apache.spark.deploy.worker.Worker, logging to /tmp/spark/log/spark/spark-rhuang-org.apache.spark.deploy.worker.Worker-1-c477-094.stampede2.tacc.utexas.edu.out
 To access the system:
 
 1) If not using ssh-keys, please enter your TACC password at the password prompt
@@ -21,11 +21,11 @@ To access the system:
 1) If not using ssh-keys, please enter your TACC password at the password prompt
 2) At the TACC Token prompt, enter your 6-digit code followed by <return>.  
 
-SPARK master is running at spark:\/\/c476-002.stampede2.tacc.utexas.edu:7077
-Spark cluster UI is at http://login1.stampede2.tacc.utexas.edu:52340
-Spark job UI is at http://login1.stampede2.tacc.utexas.edu:56613
-Prepare to run Zeppelin in /work/00791/xwj/maverick/run_spark/zeppelin-0.7.1-bin-all with spark at spark:\/\/c476-002.stampede2.tacc.utexas.edu:7077
-sed -i s/export MASTER=.*/export MASTER=$SPARK_MASTER_URL/g; s#export SPARK_SUBMIT_OPTIONS=.*#export SPARK_SUBMIT_OPTIONS="--master yarn --deploy-mode client --driver-memory 4g  --executor-memory 3g --num-executors 12 --executor-cores 2 --conf spark.r.command=$TACC_R_BIN/Rscript --conf spark.executor.extraLibraryPath=$LD_LIBRARY_PATH"#g /home1/03076/rhuang/.zeppelin/conf/zeppelin-env.sh
+SPARK master is running at spark:\/\/c476-092.stampede2.tacc.utexas.edu:7077
+Spark cluster UI is at http://login1.stampede2.tacc.utexas.edu:59934
+Spark job UI is at http://login1.stampede2.tacc.utexas.edu:57716
+Prepare to run Zeppelin in /work/00791/xwj/maverick/run_spark/zeppelin-0.7.1-bin-all with spark at spark:\/\/c476-092.stampede2.tacc.utexas.edu:7077
+sed -i s/export MASTER=.*/export MASTER=$SPARK_MASTER_URL/mg; s#export SPARK_SUBMIT_OPTIONS=.*#export SPARK_SUBMIT_OPTIONS="--master yarn --deploy-mode client --driver-memory 4g  --executor-memory 3g --num-executors 12 --executor-cores 2 --conf spark.r.command=$TACC_R_BIN/Rscript --conf spark.executor.extraLibraryPath=$LD_LIBRARY_PATH"#mg /home1/03076/rhuang/.zeppelin/conf/zeppelin-env.sh
 /work/00791/xwj/maverick/run_spark/zeppelin-0.7.1-bin-all/bin/zeppelin-daemon.sh --config /home1/03076/rhuang/.zeppelin/conf/ start
 Zeppelin start [60G[[0;32m  OK  [0;39m]
 To access the system:
@@ -33,4 +33,10 @@ To access the system:
 1) If not using ssh-keys, please enter your TACC password at the password prompt
 2) At the TACC Token prompt, enter your 6-digit code followed by <return>.  
 
-Zeppelin UI is at http://stampede2.tacc.utexas.edu:51791
+Zeppelin UI is at http://stampede2.tacc.utexas.edu:59145
+connect_to 127.0.0.1 port 8080: failed.
+connect_to 127.0.0.1 port 8080: failed.
+connect_to 127.0.0.1 port 8080: failed.
+connect_to 127.0.0.1 port 8080: failed.
+connect_to 127.0.0.1 port 8080: failed.
+connect_to 127.0.0.1 port 8080: failed.
