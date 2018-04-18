@@ -1,0 +1,36 @@
+TACC: NODE_LIST: c476-063
+c476-064
+c476-092
+TACC: NODE_HOSTNAME: c476-063.stampede2.tacc.utexas.edu
+adding c476-064
+adding c476-092
+ssh c476-063 mkdir -p /tmp/spark/{run,log}; chmod -R 777 /tmp/spark
+ssh c476-064 mkdir -p /tmp/spark/{run,log}; chmod -R 777 /tmp/spark
+ssh c476-092 mkdir -p /tmp/spark/{run,log}; chmod -R 777 /tmp/spark
+starting org.apache.spark.deploy.master.Master, logging to /tmp/spark/log/spark/spark-rhuang-org.apache.spark.deploy.master.Master-1-c476-063.out
+c476-092: starting org.apache.spark.deploy.worker.Worker, logging to /tmp/spark/log/spark/spark-rhuang-org.apache.spark.deploy.worker.Worker-1-c476-092.stampede2.tacc.utexas.edu.out
+c476-064: starting org.apache.spark.deploy.worker.Worker, logging to /tmp/spark/log/spark/spark-rhuang-org.apache.spark.deploy.worker.Worker-1-c476-064.stampede2.tacc.utexas.edu.out
+To access the system:
+
+1) If not using ssh-keys, please enter your TACC password at the password prompt
+2) At the TACC Token prompt, enter your 6-digit code followed by <return>.  
+
+To access the system:
+
+1) If not using ssh-keys, please enter your TACC password at the password prompt
+2) At the TACC Token prompt, enter your 6-digit code followed by <return>.  
+
+SPARK master is running at spark:\/\/c476-063.stampede2.tacc.utexas.edu:7077
+Spark cluster UI is at http://login1.stampede2.tacc.utexas.edu:51422
+Spark job UI is at http://login1.stampede2.tacc.utexas.edu:58292
+Prepare to run Zeppelin in /work/00791/xwj/maverick/run_spark/zeppelin-0.7.1-bin-all with spark at spark:\/\/c476-063.stampede2.tacc.utexas.edu:7077
+sed -i s/export MASTER=.*/export MASTER=spark:\/\/c476-063.stampede2.tacc.utexas.edu:7077/g /home1/03076/rhuang/.zeppelin/conf/zeppelin-env.sh
+sed -i s#export SPARK_SUBMIT_OPTIONS=.*#export SPARK_SUBMIT_OPTIONS="--master yarn --deploy-mode client --driver-memory 4g  --executor-memory 3g --num-executors 12 --executor-cores 2 --conf spark.r.command=$TACC_R_BIN/Rscript --conf spark.executor.extraLibraryPath=$LD_LIBRARY_PATH"#g /home1/03076/rhuang/.zeppelin/conf/zeppelin-env.sh
+/work/00791/xwj/maverick/run_spark/zeppelin-0.7.1-bin-all/bin/zeppelin-daemon.sh --config /home1/03076/rhuang/.zeppelin/conf/ start
+Zeppelin start [60G[[0;32m  OK  [0;39m]
+To access the system:
+
+1) If not using ssh-keys, please enter your TACC password at the password prompt
+2) At the TACC Token prompt, enter your 6-digit code followed by <return>.  
+
+Zeppelin UI is at http://stampede2.tacc.utexas.edu:59185

@@ -1,0 +1,169 @@
+#!/bin/bash
+#
+#-----------------------------------------------------------------------------
+# This job script is designed to create a R shiny  session on 
+# through the SLURM batch system. Once the job is scheduled, 
+# check the output of your job (which by default is
+# stored in your job submission  directory in a file named R-shiny.out)
+# and it will tell you the link to connecting to your R-shiny session. 
+#
+# Note: you can fine tune the SLURM submission variables below as
+# needed.  Typical items to change are the runtime limit, location of
+# the job output, and the allocation project to submit against (it is
+# commented out for now, but is required if you have multiple
+# allocations).  
+#
+# To submit the job, issue: "sbatch --reservation=OPTIONAL_RESERVATION_NAME /share/doc/slurm/job.shiny" 
+#
+# For more information, please consult the User Guide at: 
+#
+#-----------------------------------------------------------------------------
+#
+#SBATCH -J zeppelin                    # Job name
+#SBATCH -o zeppelin.out                # Name of stdout output file (%j expands to jobId)
+#SBATCH -p hadoop                     # Queue name
+#SBATCH -N 1                          # Total number of nodes requested (20 cores/node)
+#SBATCH -n 20                         # Total number of mpi tasks requested
+#SBATCH -t 08:00:00                   # Run time (hh:mm:ss) - 4 hours
+#SBATCH -A TRAINING-OPEN
+#--------------------------------------------------------------------------
+# ---- You normally should not need to edit anything below this point -----
+#--------------------------------------------------------------------------
+
+module load Rstats/3.2.1 python/2.7.9
+
+#prepare data in hdfs? 
+
+
+#make sure use oracle java 1.8?
+#module load jdk64
+
+# zeppelin directories/files needed to copy to user $HOME and $WORK
+export zeppelin_user=/data/apps/zeppelin_user
+
+# destination to copy to 
+export zeppelin_etc=$WORK/etc/zeppelin
+export zeppelin_conf_note=$HOME/zeppelin_conf_note
+
+#Specify the location of Zeppelin locaiton  
+EXEC=/data/apps/zeppelin-0.7.1-bin-all/bin/zeppelin-daemon.sh
+
+# move conf and notebook to $zeppelin_conf_note
+if [ ! -d "$zeppelin_conf_note" ]; then
+  mkdir -p $zeppelin_conf_note
+  cp -r $zeppelin_user/{conf,notebook} $zeppelin_conf_note
+fi
+
+if [ ! -d "$zeppelin_etc" ]; then
+  mkdir -p $zeppelin_etc
+  cp -r  $zeppelin_user/{webapps,local-repo,logs,run} $zeppelin_etc
+fi
+
+# repalce $DATA TO $WORK in $WORK/.zeppelin/conf/zeppelin-env.sh
+
+# sed -i "s/DATA/WORK/g" $WORK/.zeppelin/conf/zeppelin-env.sh
+
+
+# replace default username and password tacc to user$rand_num
+# rand_num=`awk -v min=1000 -v max=10000 'BEGIN{srand(); print int(min+rand()*(max-min+1))}'`
+# shiro=$WORK/.zeppelin/conf/shiro.ini
+# sed -i "s/tacc/user$rand_num/g" $shiro
+# username=`cat $shiro|grep admin|head -n 2|tail -n 1|awk '{print $1}'`
+# echo username and password: $username
+
+#######################################
+### Normally you don't need to modify lines after this. 
+######################################
+
+echo job $JOB_ID execution at: `date`
+
+# our node name
+NODE_HOSTNAME=`hostname`
+echo "TACC: running on node $NODE_HOSTNAME"
+
+# set memory limits to 95% of total memory to prevent node death
+NODE_MEMORY=`free -k | grep ^Mem: | awk '{ print $2; }'`
+NODE_MEMORY_LIMIT=`echo "0.95 * $NODE_MEMORY / 1" | bc`
+ulimit -v $NODE_MEMORY_LIMIT -m $NODE_MEMORY_LIMIT
+echo "TACC: memory limit set to $NODE_MEMORY_LIMIT kilobytes"
+
+# TODO make sure Hadoop and Spark is set?
+
+# launch R-Shiny 
+rm -rf $WORK/.zeppelin.lock 
+LOCAL_RS_PORT=8080
+echo $EXEC --config $zeppelin_conf_note/conf/ start 
+$EXEC --config $zeppelin_conf_note/conf/ start
+
+MY_PID=$$
+APP_PID= ps ef | grep "zeppelin-daemon" | awk '{print $2}'
+
+echo "$JOB_ID $APP_PID $NODE_HOSTNAME $MY_PID" > $WORK/.zeppelin.lock
+
+#map application port to login port
+#TODO implement mechanism for possible port collision from mulitple ndoes at the same time 
+#TODO need also map hadoop ports to the login node. 
+#   e.g. port namenode:8088
+HADOOP_RS_PORT="$RS_PORT_PREFIX`echo $NODE_HOSTNAME | perl -ne 'print $1.$2.$3 if /c\d(\d\d)-(\d)\d(\d)/;'`"
+echo "TACC: got login node port $HADOOP_RS_PORT for hadoop web UI"
+ssh -f -g -N -R $HADOOP_RS_PORT:$NODE_HOSTNAME:8088 login1
+
+RS_PORT_PREFIX=1
+echo "TACC: local (compute node) port is $LOCAL_RS_PORT"
+echo "TACC: remote port prefix is $RS_PORT_PREFIX"
+
+#LOGIN_RS_PORT="$RS_PORT_PREFIX`echo $NODE_HOSTNAME | perl -ne 'print $1.$2.$3 if /c\d(\d\d)-(\d)\d(\d)/;'`"LOGIN_RS_PORT=`awk -v min=50000 -v max=60000 'BEGIN{srand(); print int(min+rand()*(max-min+1))}'`
+LOGIN_RS_PORT=`awk -v min=51000 -v max=60000 'BEGIN{srand(); print int(min+rand()*(max-min+1))}'`
+
+# create reverse tunnel port to login nodes.  Make one tunnel for each login so the user can just
+# connect to login node
+for i in `seq 1`; do
+    ssh -f -g -N -R $LOGIN_RS_PORT:127.0.0.1:$LOCAL_RS_PORT login$i
+done
+echo "TACC: created reverse ports on login node"
+
+echo "Your applicatin  is now running!"
+echo "Application UI is at http://wrangler.tacc.utexas.edu:$LOGIN_RS_PORT"
+#echo "Hadoop UI is at  http://wrangler.tacc.utexas.edu:$HADOOP_RS_PORT"
+echo  Zeppelin username and password: use your TACC credential 
+
+# Warn the user when their session is about to close
+# see if the user set their own runtime
+#TACC_RUNTIME=`qstat -j $JOB_ID | grep h_rt | perl -ne 'print $1 if /h_rt=(\d+)/'`  # qstat returns seconds
+TACC_RUNTIME=`squeue -l -j $SLURM_JOB_ID | grep $SLURM_QUEUE | awk '{print $7}'` # squeue returns HH:MM:SS
+if [ x"$TACC_RUNTIME" == "x" ]; then
+	TACC_Q_RUNTIME=`sinfo -p $SLURM_QUEUE | grep -m 1 $SLURM_QUEUE | awk '{print $3}'`
+	if [ x"$TACC_Q_RUNTIME" != "x" ]; then
+		# pnav: this assumes format hh:dd:ss, will convert to seconds below
+		#       if days are specified, this won't work
+		TACC_RUNTIME=$TACC_Q_RUNTIME
+	fi
+fi
+
+if [ x"$TACC_RUNTIME" != "x" ]; then
+	# there's a runtime limit, so warn the user when the session will die
+	# give 5 minute warning for runtimes > 5 minutes
+        H=$((`echo $TACC_RUNTIME | awk -F: '{print $1}'` * 3600))		
+        M=$((`echo $TACC_RUNTIME | awk -F: '{print $2}'` * 60))		
+        S=`echo $TACC_RUNTIME | awk -F: '{print $3}'`
+        TACC_RUNTIME_SEC=$(($H + $M + $S))
+        
+	if [ $TACC_RUNTIME_SEC -gt 300 ]; then
+        	TACC_RUNTIME_SEC=`expr $TACC_RUNTIME_SEC - 300`
+        	sleep $TACC_RUNTIME_SEC && wall "$USER's session will end in 5 minutes.  Please save your work now." | wall &
+        fi
+fi
+
+# spin on .shiny.lock file to keep job alive
+while [ -f $WORK/.zeppelin.lock ]; do
+  sleep 30
+done
+
+
+# job is done!
+
+# wait a brief moment so Rstudio can clean up after itself
+sleep 1
+rm $WORK/.zeppelin.lock
+
+echo "TACC: job $SLURM_JOB_ID execution finished at: `date`"
