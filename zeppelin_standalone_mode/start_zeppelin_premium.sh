@@ -31,12 +31,13 @@ if [ ! -d "$Z_LOCAL" ]; then
   cp -r $ZEPPELIN_HOME/.zeppelin/* $Z_LOCAL
 fi
 
-echo sed -i "s/export MASTER=.*/export MASTER=$SPARK_MASTER_URL/g" $Z_LOCAL/conf/zeppelin-env.sh
-sed -i "s/export MASTER=.*/export MASTER=$SPARK_MASTER_URL/g" $Z_LOCAL/conf/zeppelin-env.sh
+#echo sed -i "s/export MASTER=.*/export MASTER=$SPARK_MASTER_URL/g" $Z_LOCAL/conf/zeppelin-env.sh
+echo sed -i 's/export MASTER=.*/export MASTER=$SPARK_MASTER_URL/g; s#export SPARK_SUBMIT_OPTIONS=.*#export SPARK_SUBMIT_OPTIONS="--master yarn --deploy-mode client --driver-memory 4g  --executor-memory 3g --num-executors 12 --executor-cores 2 --conf spark.r.command=$TACC_R_BIN/Rscript --conf spark.executor.extraLibraryPath=$LD_LIBRARY_PATH"#g' $Z_LOCAL/conf/zeppelin-env.sh
+sed -i 's/export MASTER=.*/export MASTER=$SPARK_MASTER_URL/g; s#export SPARK_SUBMIT_OPTIONS=.*#export SPARK_SUBMIT_OPTIONS="--master yarn --deploy-mode client --driver-memory 4g  --executor-memory 3g --num-executors 12 --executor-cores 2 --conf spark.r.command=$TACC_R_BIN/Rscript --conf spark.executor.extraLibraryPath=$LD_LIBRARY_PATH"#g' $Z_LOCAL/conf/zeppelin-env.sh
 
 # add LD_LIBRARY_PATH for R to work
-echo sed -i 's#export SPARK_SUBMIT_OPTIONS=.*#export SPARK_SUBMIT_OPTIONS="--master yarn --deploy-mode client --driver-memory 4g  --executor-memory 3g --num-executors 12 --executor-cores 2 --conf spark.r.command=$TACC_R_BIN/Rscript --conf spark.executor.extraLibraryPath=$LD_LIBRARY_PATH"#g' $Z_LOCAL/conf/zeppelin-env.sh
-sed -i 's#export SPARK_SUBMIT_OPTIONS=.*#export SPARK_SUBMIT_OPTIONS="--master yarn --deploy-mode client --driver-memory 4g  --executor-memory 3g --num-executors 12 --executor-cores 2 --conf spark.r.command=$TACC_R_BIN/Rscript --conf spark.executor.extraLibraryPath=$LD_LIBRARY_PATH"#g' $Z_LOCAL/conf/zeppelin-env.sh
+# echo sed -i 's#export SPARK_SUBMIT_OPTIONS=.*#export SPARK_SUBMIT_OPTIONS="--master yarn --deploy-mode client --driver-memory 4g  --executor-memory 3g --num-executors 12 --executor-cores 2 --conf spark.r.command=$TACC_R_BIN/Rscript --conf spark.executor.extraLibraryPath=$LD_LIBRARY_PATH"#g; s#export SPARK_SUBMIT_OPTIONS=.*#export SPARK_SUBMIT_OPTIONS="--master yarn --deploy-mode client --driver-memory 4g  --executor-memory 3g --num-executors 12 --executor-cores 2 --conf spark.r.command=$TACC_R_BIN/Rscript --conf spark.executor.extraLibraryPath=$LD_LIBRARY_PATH"#g' $Z_LOCAL/conf/zeppelin-env.sh
+#sed -i 's#export SPARK_SUBMIT_OPTIONS=.*#export SPARK_SUBMIT_OPTIONS="--master yarn --deploy-mode client --driver-memory 4g  --executor-memory 3g --num-executors 12 --executor-cores 2 --conf spark.r.command=$TACC_R_BIN/Rscript --conf spark.executor.extraLibraryPath=$LD_LIBRARY_PATH"#g' $Z_LOCAL/conf/zeppelin-env.sh
 
 if [ -f "$Z_LOCAL/conf/interpreter.json" ]; then
         sed -i "s/\"master\":.*/\"master\": \"$SPARK_MASTER_URL\",/g" $Z_LOCAL/conf/interpreter.json
